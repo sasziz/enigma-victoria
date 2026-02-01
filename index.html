@@ -2,150 +2,356 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Enigma simulation</title>
+<title>Victoria's Enigma</title>
+
 <style>
-body {
-    margin: 0;
-    font-family: 'Verdana', sans-serif;
-    background: linear-gradient(120deg, #cfd9ff, #e2ebf0);
-    min-height: 100vh;
-    display: flex;
+:root{
+    --bg1:#020617;
+    --bg2:#0f172a;
+    --panel:#020617;
+    --card:#0b1224;
+    --text:#e5e7eb;
+    --accent:#6366f1;
+    --soft:#1e293b;
+    --border:#334155;
+    --error:#f87171;
+}
+
+*{box-sizing:border-box;}
+
+body{
+    margin:0;
+    min-height:100vh;
+    background:
+        radial-gradient(circle at top,#1e293b,transparent 40%),
+        linear-gradient(135deg,var(--bg1),var(--bg2));
+    font-family:"Segoe UI",system-ui,sans-serif;
+    color:var(--text);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding: 20px;
+}
+
+.enigma{
+    width:700px;
+    max-width:95%;
+    background:rgba(2,6,23,.92);
+    backdrop-filter:blur(14px);
+    border-radius:20px;
+    padding:26px;
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.05),
+        0 30px 70px rgba(0,0,0,.6);
+}
+
+h1{
+    text-align:center;
+    margin:0 0 14px;
+    letter-spacing:.5px;
+}
+
+.card{
+    background:linear-gradient(180deg,#0b1224,#020617);
+    border-radius:14px;
+    padding:14px;
+    margin-bottom:16px;
+    border:1px solid var(--border);
+    box-shadow:0 8px 22px rgba(0,0,0,.45);
+}
+
+label{
+    font-size:13px;
+    opacity:.85;
+}
+
+textarea{
+    width:100%;
+    height:90px;
+    resize:none;
+    border-radius:10px;
+    border:1px solid var(--border);
+    padding:10px;
+    background:#020617;
+    color:var(--text);
+    font-size:14px;
+    outline:none;
+}
+
+input,select{
+    border-radius:8px;
+    border:1px solid var(--border);
+    padding:6px;
+    background:#020617;
+    color:var(--text);
+    text-align: center;
+}
+
+.row{
+    display:flex;
+    gap:10px;
+    flex-wrap:nowrap;
+    align-items:center;
     justify-content: center;
-    align-items: center;
 }
-.enigma-playground {
-    width: 580px;
-    max-width: 95%;
-    background: #fefefe;
-    border-radius: 14px;
-    padding: 22px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-    animation: slideFade 0.9s ease;
+
+.rotor-display{
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    font-size:22px;
+    font-weight:700;
+    margin-top:16px;
 }
-.card {
-    background: #f3f6f9;
-    border-radius: 9px;
-    margin-bottom: 14px;
+
+.rotor{
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    background: radial-gradient(circle at top,#334155,#020617);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    border:1px solid #475569;
+    box-shadow: inset 0 2px 6px rgba(255,255,255,.1), inset 0 -4px 8px rgba(0,0,0,.8);
+    transition:.25s;
+}
+
+.rotor.spin{ transform:rotate(28deg); }
+
+.button-group{
+    display: flex;
+    gap: 12px;
+    margin: 24px 0;
+}
+
+button{
+    flex: 1;
     padding: 14px;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-.card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.09);
-}
-h1, h3 { text-align: center; margin-top: 0; }
-.rotor-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 5px; margin: 7px 0; }
-.rotor-letters { display: flex; justify-content: center; gap: 9px; margin-top: 9px; }
-textarea { width: 100%; height: 78px; border-radius: 6px; border: 1px solid #c4d0dd; padding: 7px; font-size: 14px; resize: none; }
-select,input { padding:5px; border-radius:5px; border:1px solid #c4d0dd; font-size:14px; }
-button {
-    width: 100%;
-    padding: 11px;
     border: none;
-    border-radius: 8px;
-    background-color: #2c5ddd;
-    color: #fff;
+    border-radius: 12px;
+    color: white;
     font-size: 15px;
     cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
+    font-weight: 600;
+    transition: .25s;
 }
-button:hover { background-color: #1e42b0; transform: scale(1.025); }
-@keyframes slideFade { from {opacity:0; transform:translateY(18px);} to {opacity:1; transform:translateY(0);} }
-@media(max-width:500px){ h1 { font-size:18px; } .rotor-row{ flex-direction: column; align-items:flex-start; } .rotor-letters{ flex-direction: row; } textarea{ height:65px; } }
+
+.btn-primary {
+    background: linear-gradient(180deg,#818cf8,#4f46e5);
+    box-shadow: 0 10px 25px rgba(79,70,229,0.4);
+}
+
+.btn-secondary {
+    background: #1e293b;
+    border: 1px solid var(--border);
+    color: #94a3b8;
+}
+
+button:hover{ transform:translateY(-1px); filter: brightness(1.1); }
+
+@keyframes shake {
+    0% { transform: translateX(0); opacity: 0; }
+    25% { transform: translateX(4px); }
+    50% { transform: translateX(-4px); }
+    100% { transform: translateX(0); opacity: 1; }
+}
+
+.warning-text {
+    color: var(--error);
+    font-size: 12px;
+    text-align: center;
+    margin-bottom: 10px;
+    display: none;
+    font-weight: bold;
+    animation: shake 0.3s ease-in-out;
+}
+
+.box-label-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
 </style>
 </head>
+
 <body>
 
-<div class="enigma-playground">
+<div class="enigma">
+    <h1>Victoria's Enigma</h1>
 
-<h1>Enigma Simulation</h1>
+    <div class="card">
+        <label>Input Message</label>
+        <textarea id="userInput"></textarea>
+    </div>
 
-<div class="card">
-<h3>Input</h3>
-<div style="font-size:12px;color:rgba(0,0,0,0.44);text-align:center;margin-bottom:5px;">
-To Decrypt, place encrypted text here use same rotor settings
-</div>
-<textarea id="messageText"></textarea>
-</div>
+    <div class="card">
+        <label>Plugboard (AB CD EF)</label>
+        <input id="pbSettings" placeholder="AB CD EF" style="width: 100%; text-align: left; margin-top:5px;">
+    </div>
 
-<div class="card">
-<h3>Rotor Setup</h3>
-<div class="rotor-row">
-<label>Left Rotor:</label>
-<select id="rotorLeft"><option>I</option><option>II</option><option>III</option></select>
-<label>Middle Rotor:</label>
-<select id="rotorMiddle"><option>I</option><option>II</option><option>III</option></select>
-<label>Right Rotor:</label>
-<select id="rotorRight"><option>I</option><option>II</option><option>III</option></select>
-</div>
-<div class="rotor-letters">
-<input id="leftRotorStart" value="A" maxlength="1">
-<input id="middleRotorStart" value="A" maxlength="1">
-<input id="rightRotorStart" value="A" maxlength="1">
-</div>
-</div>
+    <div id="errorBox" class="warning-text">ROTOR ERROR: CHOOSE THREE DIFFERENT TYPES</div>
 
-<button onclick="runEnigma()">Encrypt / Decrypt</button>
+    <div class="card">
+        <div class="row" style="margin-bottom: 15px;">
+            <div class="box-label-stack">
+                <label>Left</label>
+                <select id="selL" onchange="validateRotors()"><option selected>I</option><option>II</option><option>III</option></select>
+            </div>
+            <div class="box-label-stack">
+                <label>Middle</label>
+                <select id="selM" onchange="validateRotors()"><option>I</option><option selected>II</option><option>III</option></select>
+            </div>
+            <div class="box-label-stack">
+                <label>Right</label>
+                <select id="selR" onchange="validateRotors()"><option>I</option><option>II</option><option selected>III</option></select>
+            </div>
+        </div>
 
-<div class="card">
-<h3>Output</h3>
-<textarea id="cipherResult" readonly></textarea>
+        <div class="row">
+            <div class="box-label-stack">
+                <label>Position</label>
+                <div style="display:flex; gap:8px;">
+                    <input id="posL" value="A" maxlength="1" style="width: 45px;">
+                    <input id="posM" value="A" maxlength="1" style="width: 45px;">
+                    <input id="posR" value="A" maxlength="1" style="width: 45px;">
+                </div>
+            </div>
+            <div style="width: 20px;"></div>
+            <div class="box-label-stack">
+                <label>Ring</label>
+                <div style="display:flex; gap:8px;">
+                    <input id="rngL" value="A" maxlength="1" style="width: 45px;">
+                    <input id="rngM" value="A" maxlength="1" style="width: 45px;">
+                    <input id="rngR" value="A" maxlength="1" style="width: 45px;">
+                </div>
+            </div>
+        </div>
+
+        <div class="rotor-display">
+            <div class="rotor" id="viewL">A</div>
+            <div class="rotor" id="viewM">A</div>
+            <div class="rotor" id="viewR">A</div>
+        </div>
+    </div>
+
+    <div class="button-group">
+        <button class="btn-primary" onclick="startCipher()">Encrypt / Decrypt</button>
+        <button class="btn-secondary" onclick="killAndReset()">Reset Machine</button>
+    </div>
+
+    <div class="card">
+        <label>Output Message</label>
+        <textarea id="resultOutput" readonly></textarea>
+    </div>
 </div>
 
 <script>
-const ALPH = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const ROTORSET = {
-    I:"EKMFLGDQVZNTOWYHXUSPAIBRCJ",
-    II:"AJDKSIRUXBLHWTMCQGZNPYFVOE",
-    III:"BDFHJLCPRTXVZNYEIWGAKMUSQO"
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const WIRING = {
+    I:   {w: "EKMFLGDQVZNTOWYHXUSPAIBRCJ", n: "Q"},
+    II:  {w: "AJDKSIRUXBLHWTMCQGZNPYFVOE", n: "E"},
+    III: {w: "BDFHJLCPRTXVZNYEIWGAKMUSQO", n: "V"}
 };
-const REFLECT = "YRUHQSLDPXNGOKMIEBFZCWVJAT";
+const REFLECTOR = "YRUHQSLDPXNGOKMIEBFZCWVJAT";
 
-function rotorEncrypt(letter, rotorPos, rotorMap){
-    if(!ALPH.includes(letter)) return letter;
-    let idx = ALPH.indexOf(letter);
-    idx = ALPH.indexOf(rotorMap[0][(idx + rotorPos[0])%26]);
-    idx = ALPH.indexOf(rotorMap[1][(idx + rotorPos[1])%26]);
-    idx = ALPH.indexOf(rotorMap[2][(idx + rotorPos[2])%26]);
-    idx = ALPH.indexOf(REFLECT[idx]);
-    idx = (rotorMap[2].indexOf(ALPH[idx]) - rotorPos[2] + 26)%26;
-    idx = (rotorMap[1].indexOf(ALPH[idx]) - rotorPos[1] + 26)%26;
-    idx = (rotorMap[0].indexOf(ALPH[idx]) - rotorPos[0] + 26)%26;
-    return ALPH[idx];
+let active = false;
+
+function validateRotors() {
+    let okay = (selL.value !== selM.value && selL.value !== selR.value && selM.value !== selR.value);
+    errorBox.style.display = okay ? "none" : "block";
+    return okay;
 }
 
-async function runEnigma(){
-    let text = document.getElementById("messageText").value.toUpperCase().replace(/[^A-Z]/g,'');
-    const output = document.getElementById("cipherResult");
-    output.value = "";
-    const rotors = [
-        ROTORSET[document.getElementById("rotorLeft").value],
-        ROTORSET[document.getElementById("rotorMiddle").value],
-        ROTORSET[document.getElementById("rotorRight").value]
-    ];
-    let positions = [
-        ALPH.indexOf(document.getElementById("leftRotorStart").value.toUpperCase()),
-        ALPH.indexOf(document.getElementById("middleRotorStart").value.toUpperCase()),
-        ALPH.indexOf(document.getElementById("rightRotorStart").value.toUpperCase())
-    ];
-    if(positions.some(p=>p===-1)){ alert("Rotor letters must be A-Z"); return; }
-    const rotorNames = [
-        document.getElementById("rotorLeft").value,
-        document.getElementById("rotorMiddle").value,
-        document.getElementById("rotorRight").value
-    ];
-    if(new Set(rotorNames).size<3){ alert("Each rotor must be unique"); return; }
-    for(let c of text){
-        positions[2]=(positions[2]+1)%26;
-        if(positions[2]===0) positions[1]=(positions[1]+1)%26;
-        if(positions[1]===0 && positions[2]===0) positions[0]=(positions[0]+1)%26;
-        output.value += rotorEncrypt(c, positions, rotors);
-        await new Promise(r=>setTimeout(r,70));
+function killAndReset() {
+    active = false;
+    userInput.value = "";
+    resultOutput.value = "";
+    pbSettings.value = "";
+    selL.value = "I"; selM.value = "II"; selR.value = "III";
+    posL.value = posM.value = posR.value = "A";
+    rngL.value = rngM.value = rngR.value = "A";
+    viewL.textContent = viewM.textContent = viewR.textContent = "A";
+    errorBox.style.display = "none";
+}
+
+function getPlugs() {
+    let map = {};
+    let str = pbSettings.value.toUpperCase().trim();
+    if (!str) return {};
+    let parts = str.split(" ").filter(s => s);
+    for (let pair of parts) {
+        if (pair.length !== 2 || pair[0] === pair[1] || map[pair[0]] || map[pair[1]]) return null;
+        map[pair[0]] = pair[1];
+        map[pair[1]] = pair[0];
     }
+    return map;
+}
+
+function mechanicalStep(p, r) {
+    if (ALPHABET[p[1]] === r[1].n) {
+        p[0] = (p[0] + 1) % 26;
+        p[1] = (p[1] + 1) % 26;
+    } else if (ALPHABET[p[2]] === r[2].n) {
+        p[1] = (p[1] + 1) % 26;
+    }
+    p[2] = (p[2] + 1) % 26;
+}
+
+function substitution(char, p, rs, r) {
+    let idx = ALPHABET.indexOf(char);
+    for (let j = 2; j >= 0; j--) {
+        idx = (idx + p[j] - rs[j] + 26) % 26;
+        idx = ALPHABET.indexOf(r[j].w[idx]);
+        idx = (idx - p[j] + rs[j] + 26) % 26;
+    }
+    idx = ALPHABET.indexOf(REFLECTOR[idx]);
+    for (let j = 0; j < 3; j++) {
+        idx = (idx + p[j] - rs[j] + 26) % 26;
+        idx = r[j].w.indexOf(ALPHABET[idx]);
+        idx = (idx - p[j] + rs[j] + 26) % 26;
+    }
+    return ALPHABET[idx];
+}
+
+async function startCipher() {
+    if (active) active = false;
+    await new Promise(r => setTimeout(r, 60));
+    
+    if (!validateRotors()) return;
+    let cleanText = userInput.value.toUpperCase().replace(/[^A-Z]/g, "");
+    let plugboard = getPlugs();
+    if (plugboard === null) return;
+
+    resultOutput.value = "";
+    active = true;
+
+    let rData = [WIRING[selL.value], WIRING[selM.value], WIRING[selR.value]];
+    let pVal = [ALPHABET.indexOf(posL.value.toUpperCase()), ALPHABET.indexOf(posM.value.toUpperCase()), ALPHABET.indexOf(posR.value.toUpperCase())];
+    let rVal = [ALPHABET.indexOf(rngL.value.toUpperCase()), ALPHABET.indexOf(rngM.value.toUpperCase()), ALPHABET.indexOf(rngR.value.toUpperCase())];
+
+    for (let letter of cleanText) {
+        if (!active) break;
+        
+        mechanicalStep(pVal, rData);
+        viewL.textContent = ALPHABET[pVal[0]];
+        viewM.textContent = ALPHABET[pVal[1]];
+        viewR.textContent = ALPHABET[pVal[2]];
+        
+        viewR.classList.add("spin");
+        setTimeout(() => viewR.classList.remove("spin"), 150);
+
+        let signal = plugboard[letter] || letter;
+        signal = substitution(signal, pVal, rVal, rData);
+        signal = plugboard[signal] || signal;
+        
+        resultOutput.value += signal;
+        await new Promise(r => setTimeout(r, 40));
+    }
+    active = false;
 }
 </script>
 
-</div>
 </body>
 </html>
-

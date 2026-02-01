@@ -114,10 +114,10 @@ input,select{
     align-items:center;
     border:1px solid #475569;
     box-shadow: inset 0 2px 6px rgba(255,255,255,.1), inset 0 -4px 8px rgba(0,0,0,.8);
-    transition:.25s;
+    transition: transform 0.4s ease;
 }
 
-.rotor.spin{ transform:rotate(28deg); }
+.rotor.spin{ transform:rotate(360deg); }
 
 .button-group{
     display: flex;
@@ -256,16 +256,16 @@ const WIRING = {
 };
 const REFLECTOR = "YRUHQSLDPXNGOKMIEBFZCWVJAT";
 
-let active = false;
+let machineState = false;
 
 function validateRotors() {
-    let okay = (selL.value !== selM.value && selL.value !== selR.value && selM.value !== selR.value);
-    errorBox.style.display = okay ? "none" : "block";
-    return okay;
+    let check = (selL.value !== selM.value && selL.value !== selR.value && selM.value !== selR.value);
+    errorBox.style.display = check ? "none" : "block";
+    return check;
 }
 
 function killAndReset() {
-    active = false;
+    machineState = false;
     userInput.value = "";
     resultOutput.value = "";
     pbSettings.value = "";
@@ -278,18 +278,18 @@ function killAndReset() {
 
 function getPlugs() {
     let map = {};
-    let str = pbSettings.value.toUpperCase().trim();
-    if (!str) return {};
-    let parts = str.split(" ").filter(s => s);
-    for (let pair of parts) {
-        if (pair.length !== 2 || pair[0] === pair[1] || map[pair[0]] || map[pair[1]]) return null;
-        map[pair[0]] = pair[1];
-        map[pair[1]] = pair[0];
+    let text = pbSettings.value.toUpperCase().trim();
+    if (!text) return {};
+    let pairs = text.split(" ").filter(s => s);
+    for (let p of pairs) {
+        if (p.length !== 2 || p[0] === p[1] || map[p[0]] || map[p[1]]) return null;
+        map[p[0]] = p[1];
+        map[p[1]] = p[0];
     }
     return map;
 }
 
-function mechanicalStep(p, r) {
+function step(p, r) {
     if (ALPHABET[p[1]] === r[1].n) {
         p[0] = (p[0] + 1) % 26;
         p[1] = (p[1] + 1) % 26;
@@ -299,60 +299,60 @@ function mechanicalStep(p, r) {
     p[2] = (p[2] + 1) % 26;
 }
 
-function substitution(char, p, rs, r) {
-    let idx = ALPHABET.indexOf(char);
+function sub(c, p, rs, r) {
+    let i = ALPHABET.indexOf(c);
     for (let j = 2; j >= 0; j--) {
-        idx = (idx + p[j] - rs[j] + 26) % 26;
-        idx = ALPHABET.indexOf(r[j].w[idx]);
-        idx = (idx - p[j] + rs[j] + 26) % 26;
+        i = (i + p[j] - rs[j] + 26) % 26;
+        i = ALPHABET.indexOf(r[j].w[i]);
+        i = (i - p[j] + rs[j] + 26) % 26;
     }
-    idx = ALPHABET.indexOf(REFLECTOR[idx]);
+    i = ALPHABET.indexOf(REFLECTOR[i]);
     for (let j = 0; j < 3; j++) {
-        idx = (idx + p[j] - rs[j] + 26) % 26;
-        idx = r[j].w.indexOf(ALPHABET[idx]);
-        idx = (idx - p[j] + rs[j] + 26) % 26;
+        i = (i + p[j] - rs[j] + 26) % 26;
+        i = r[j].w.indexOf(ALPHABET[i]);
+        i = (i - p[j] + rs[j] + 26) % 26;
     }
-    return ALPHABET[idx];
+    return ALPHABET[i];
 }
 
 async function startCipher() {
-    if (active) active = false;
-    await new Promise(r => setTimeout(r, 60));
+    if (machineState) machineState = false;
+    await new Promise(res => setTimeout(res, 100));
     
     if (!validateRotors()) return;
-    let cleanText = userInput.value.toUpperCase().replace(/[^A-Z]/g, "");
-    let plugboard = getPlugs();
-    if (plugboard === null) return;
+    let clean = userInput.value.toUpperCase().replace(/[^A-Z]/g, "");
+    let plugs = getPlugs();
+    if (plugs === null) return;
 
     resultOutput.value = "";
-    active = true;
+    machineState = true;
 
     let rData = [WIRING[selL.value], WIRING[selM.value], WIRING[selR.value]];
-    let pVal = [ALPHABET.indexOf(posL.value.toUpperCase()), ALPHABET.indexOf(posM.value.toUpperCase()), ALPHABET.indexOf(posR.value.toUpperCase())];
-    let rVal = [ALPHABET.indexOf(rngL.value.toUpperCase()), ALPHABET.indexOf(rngM.value.toUpperCase()), ALPHABET.indexOf(rngR.value.toUpperCase())];
+    let pV = [ALPHABET.indexOf(posL.value.toUpperCase()), ALPHABET.indexOf(posM.value.toUpperCase()), ALPHABET.indexOf(posR.value.toUpperCase())];
+    let rV = [ALPHABET.indexOf(rngL.value.toUpperCase()), ALPHABET.indexOf(rngM.value.toUpperCase()), ALPHABET.indexOf(rngR.value.toUpperCase())];
 
-    for (let letter of cleanText) {
-        if (!active) break;
+    for (let char of clean) {
+        if (!machineState) break;
         
-        mechanicalStep(pVal, rData);
-        viewL.textContent = ALPHABET[pVal[0]];
-        viewM.textContent = ALPHABET[pVal[1]];
-        viewR.textContent = ALPHABET[pVal[2]];
+        step(pV, rData);
+        
+        viewL.textContent = ALPHABET[pV[0]];
+        viewM.textContent = ALPHABET[pV[1]];
+        viewR.textContent = ALPHABET[pV[2]];
         
         viewR.classList.add("spin");
-        setTimeout(() => viewR.classList.remove("spin"), 150);
+        setTimeout(() => viewR.classList.remove("spin"), 400);
 
-        let signal = plugboard[letter] || letter;
-        signal = substitution(signal, pVal, rVal, rData);
-        signal = plugboard[signal] || signal;
+        let s = plugs[char] || char;
+        s = sub(s, pV, rV, rData);
+        s = plugs[s] || s;
         
-        resultOutput.value += signal;
-        await new Promise(r => setTimeout(r, 40));
+        resultOutput.value += s;
+        await new Promise(res => setTimeout(res, 600));
     }
-    active = false;
+    machineState = false;
 }
 </script>
 
 </body>
 </html>
-

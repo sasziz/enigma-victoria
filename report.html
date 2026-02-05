@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enigma I Logic Analysis</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&family=Fira+Code:wght@400;500&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            --primary: #1a1c1e;
+            --accent: #d35400;
+            --paper-bg: #ffffff;
+            --sidebar: #f8f9fa;
+            --text-muted: #636e72;
+            --border: #e1e4e8;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            display: flex;
+            background: #f0f2f5;
+            color: var(--primary);
+            line-height: 1.7;
+        }
+
+        /* Side Navigation */
+        nav {
+            width: 280px;
+            height: 100vh;
+            background: var(--sidebar);
+            position: fixed;
+            padding: 40px 30px;
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+        }
+
+        nav h3 { 
+            font-size: 0.75rem; 
+            text-transform: uppercase; 
+            letter-spacing: 1.5px; 
+            color: var(--text-muted);
+            margin-bottom: 25px;
+        }
+        
+        nav ul { list-style: none; padding: 0; }
+        nav li { margin: 12px 0; }
+        nav a { 
+            text-decoration: none; 
+            color: var(--primary); 
+            font-size: 0.9rem; 
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        nav a:hover { color: var(--accent); }
+
+        /* Main Document Body */
+        main { 
+            margin-left: 280px; 
+            padding: 60px 8%; 
+            width: 100%; 
+            max-width: 1200px;
+        }
+
+        .document-title {
+            margin-bottom: 60px;
+            border-bottom: 4px solid var(--primary);
+            padding-bottom: 20px;
+        }
+
+        .document-title h1 { font-family: 'Crimson Pro', serif; font-size: 3.2rem; margin: 0; }
+        .metadata { color: var(--text-muted); font-size: 1rem; margin-top: 10px; }
+
+        section {
+            background: var(--paper-bg);
+            padding: 50px;
+            border-radius: 2px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+
+        h2 { 
+            font-family: 'Crimson Pro', serif; 
+            font-size: 2rem; 
+            border-left: 5px solid var(--accent);
+            padding-left: 20px;
+            margin-bottom: 30px;
+        }
+
+        h3 { font-size: 1.2rem; color: var(--accent); margin-top: 30px; }
+
+        .diagram-placeholder {
+            background: #f8f9fa;
+            border: 2px dashed #cbd5e0;
+            padding: 40px;
+            text-align: center;
+            margin: 30px 0;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .math-formula {
+            background: #fffaf0;
+            border: 1px solid #feebc8;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.4rem;
+            margin: 25px 0;
+            color: #7b341e;
+        }
+
+        code[class*="language-"], pre[class*="language-"] {
+            font-family: 'Fira Code', monospace !important;
+            font-size: 0.85rem !important;
+            border-radius: 8px !important;
+            margin: 20px 0 !important;
+        }
+
+        footer {
+            text-align: center;
+            padding: 60px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <h3>Table of Contents</h3>
+    <ul>
+        <li><a href="#abstract">Abstract</a></li>
+        <li><a href="#architecture">1. System Architecture</a></li>
+        <li><a href="#alphabet">2. Linguistic Poly-Alphabets</a></li>
+        <li><a href="#math">3. Rotor Substitution Math</a></li>
+        <li><a href="#stepping">4. Mechanical Anomalies</a></li>
+        <li><a href="#concurrency">5. Asynchronous Control</a></li>
+    </ul>
+</nav>
+
+<main>
+    <header class="document-title">
+        <h1>Enigma I: Digital Reconstruction</h1>
+        <div class="metadata">
+            <strong>Author:</strong> ויקטוריה מוסר <br>
+
+            <strong>Submission Date:</strong> February 2026
+        </div>
+    </header>
+
+    <section id="abstract">
+        <h2>Abstract</h2>
+        <p>This report details the implementation of a high-fidelity Enigma I simulation. The software recreates the electrical signal path of the 1930s German military cipher machine, focusing on three specific logic pillars: <strong>reciprocal plugboard mapping</strong>, <strong>rotational substitution</strong>, and <strong>mechanical stepping anomalies</strong>.</p>
+    </section>
+
+    <section id="architecture">
+        <h2>1. System Architecture</h2>
+        <p>The signal flow follows a "Mirror-Image" traversal. A character enters the system, undergoes multiple permutations, hits a reflector (UKW), and returns through the inverse of the same path.</p>
+        
+        
+        
+        <p>This symmetry ensures that the machine is reciprocal: if "A" encrypts to "G" at a specific setting, "G" will decrypt to "A" at that same setting.</p>
+    </section>
+
+    <section id="alphabet">
+        <h2>2. Linguistic Poly-Alphabets</h2>
+        <p>To support multi-language cryptography, I implemented a variable base modulus. By calculating the length of the constant strings, the mathematical offsets remain valid regardless of the character set size.</p>
+        
+        <pre><code class="language-javascript">const ENG = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // Mod 26
+const HEB = "אבגדהוזחטיכלמנסעפצקרשת"; // Mod 22</code></pre>
+        
+        <p>All rotations use the formula: $Index \pmod{ALPH.length}$ to prevent index overflow.</p>
+    </section>
+
+    <section id="math">
+        <h2>3. Rotor Substitution Math</h2>
+        <p>The most critical component is the <code>enc()</code> function. Each rotor has a "Wiring" string and a "Position." The logic must subtract the shift before leaving the rotor to find the actual electrical contact.</p>
+
+        <h3>The Displacement Formula</h3>
+        <div class="math-formula">
+            $E = (i + P - R) \pmod{L}$
+        </div>
+        <p>Where $i$ is the input index, $P$ is the current position, $R$ is the ring setting, and $L$ is the alphabet length.</p>
+
+        
+
+        <pre><code class="language-javascript">function enc(c, p, rs, r, ref, ALPH) {
+    let i = ALPH.indexOf(c);
+    // Forward Pass (Right to Left)
+    for (let j = 2; j >= 0; j--) {
+        let shift = (p[j] - rs[j] + ALPH.length) % ALPH.length;
+        i = (i + shift) % ALPH.length;
+        i = ALPH.indexOf(r[j].w[i]);
+        i = (i - shift + ALPH.length) % ALPH.length;
+    }
+    i = ALPH.indexOf(ref[i]); // Reflection
+    // Backward Pass (Left to Right)
+    for (let j = 0; j < 3; j++) {
+        let shift = (p[j] - rs[j] + ALPH.length) % ALPH.length;
+        i = (i + shift) % ALPH.length;
+        i = r[j].w.indexOf(ALPH[i]);
+        i = (i - shift + ALPH.length) % ALPH.length;
+    }
+    return ALPH[i];
+}</code></pre>
+    </section>
+
+    <section id="stepping">
+        <h2>4. Mechanical Anomalies</h2>
+        <p>The Enigma I does not increment linearly like a counter. It uses a "Pawl and Ratchet" system that causes the <strong>Double-Stepping Anomaly</strong>.</p>
+        
+        
+
+        <p>If the Middle Rotor (Index 1) is at its notch position, it pushes the Left Rotor (Index 0) and simultaneously advances itself again. This logic is vital for historical accuracy.</p>
+
+        <pre><code class="language-javascript">function step(p, r, ALPH) {
+    let mStep = ALPH[p[1]] === r[1].n;
+    let rStep = ALPH[p[2]] === r[2].n;
+
+    if (mStep) {
+        p[0] = (p[0] + 1) % ALPH.length;
+        p[1] = (p[1] + 1) % ALPH.length;
+    } else if (rStep) {
+        p[1] = (p[1] + 1) % ALPH.length;
+    }
+    p[2] = (p[2] + 1) % ALPH.length;
+}</code></pre>
+    </section>
+
+    <section id="concurrency">
+        <h2>5. Asynchronous Control</h2>
+        <p>To handle UI responsiveness during the "Spinning" animation, I utilized an asynchronous execution loop. This allows the browser to render frames between character encryptions.</p>
+        
+        <pre><code class="language-javascript">async function startCipher() {
+    // ... setup logic ...
+    for (let c of t) {
+        if (id !== runId) break; // Terminate if reset
+        step(pos, rot, ALPH);
+        // ... update visual rotors ...
+        await new Promise(r => setTimeout(r, 400)); // Non-blocking delay
+    }
+}</code></pre>
+    </section>
+
+    <footer>
+        Technical Documentation of the Enigma I file &copy; 2026.
+    </footer>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+</body>
+</html>
